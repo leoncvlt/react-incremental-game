@@ -100,53 +100,7 @@ export const doTick = ({ store, dispatch }, delta) => {
   });
 
   // check if any building, upgrade or achievement has been unlocked
-  // TODO: this can be shortened
   checkIfObjectUnlocked({ store, dispatch }, BUILDINGS, store.buildings);
-  // Object.keys(BUILDINGS).forEach(buildingId => {
-  //   if (!(buildingId in store.buildings)) {
-  //     let unlocked = true;
-  //     const building = BUILDINGS[buildingId];
-  //     if (building.requirements) {
-  //       // console.log(building.requirements);
-  //       building.requirements.forEach(req => {
-  //         unlocked = checkRequirement(store, req);
-  //       });
-  //     }
-  //     if (unlocked) {
-  //       dispatch(unlockObject(buildingId));
-  //     }
-  //   }
-  // });
-
   checkIfObjectUnlocked({ store, dispatch }, UPGRADES, store.upgrades);
-  // Object.keys(UPGRADES).forEach(upgradeId => {
-  //   if (!(upgradeId in store.upgrades)) {
-  //     let unlocked = true;
-  //     const upgrade = UPGRADES[upgradeId];
-  //     if (upgrade.requirements) {
-  //       upgrade.requirements.forEach(req => {
-  //         unlocked = checkRequirement(store, req);
-  //       });
-  //     }
-  //     if (unlocked) {
-  //       dispatch(unlockObject(upgradeId));
-  //     }
-  //   }
-  // });
-
   checkIfObjectUnlocked({ store, dispatch }, ACHIEVEMENTS, store.achievements);
-  // Object.keys(ACHIEVEMENTS).forEach(achievementId => {
-  //   if (!store.achievements.includes(achievementId)) {
-  //     let unlocked = true;
-  //     const achievement = ACHIEVEMENTS[achievementId];
-  //     if (achievement.requirements) {
-  //       achievement.requirements.forEach(req => {
-  //         unlocked = checkRequirement(store, req);
-  //       });
-  //     }
-  //     if (unlocked) {
-  //       dispatch(unlockObject(achievementId));
-  //     }
-  //   }
-  // });
 };

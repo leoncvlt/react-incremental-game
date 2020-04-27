@@ -1,4 +1,4 @@
-import { REQ } from "../constants/requirement";
+import { REQ } from "../constants/constants";
 
 export const checkRequirement = (store, req) => {
   if (req.id in store.resources) {

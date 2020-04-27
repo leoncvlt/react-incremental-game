@@ -1,5 +1,4 @@
-import { REQ } from "../constants/requirement";
-import { OPS } from "../constants/operations";
+import { REQ, OPS } from "../constants/constants";
 
 export const UPGRADES = {
   parsley: {
