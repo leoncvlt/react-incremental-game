@@ -6,11 +6,15 @@ export const checkRequirement = (store, req) => {
     switch (req.case) {
       case REQ.AMOUNT:
         return target.amount >= req.amount;
-      case REQ.EARNED:
+      case REQ.TOTAL:
         return target.earned >= req.amount;
       default:
         return false;
     }
+  }
+  if (req.id in store.buildings) {
+    const target = store.buildings[req.id];
+    return target >= req.amount;
   }
   if (req.id in store.clickers) {
     const id = store.clickers[req.id];

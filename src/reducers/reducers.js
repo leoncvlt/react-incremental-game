@@ -6,6 +6,7 @@ import { UPGRADES } from "../data/upgrades";
 import { ACHIEVEMENTS } from "../data/achievements";
 
 import cloneDeep from "lodash.clonedeep";
+import { OPS } from "../constants/constants";
 
 const expendResources = (resourceStore, expenses) => {
   const updatedResources = cloneDeep(resourceStore);
@@ -84,8 +85,9 @@ export const storeReducer = (store, action) => {
       const { delta } = action;
 
       if (id in store.resources) {
+        // if the resolved effect is targeting a resource, increase its amount
         const updatedResources = cloneDeep(store.resources);
-        if (op === "increase") {
+        if (op === OPS.ADD) {
           updatedResources[id].amount += amount * delta;
           updatedResources[id].earned += amount * delta;
         }
@@ -94,10 +96,8 @@ export const storeReducer = (store, action) => {
         //TODO
       } else if (id in store.clickers) {
         const updatedClickers = cloneDeep(store.clickers);
-        if (op === "increase") {
-          if (target === "clicks") {
-            updatedClickers[id].clicks += amount * delta;
-          }
+        if (op === OPS.ADD) {
+          updatedClickers[id].clicks += amount * delta;
         }
         return { ...store, clickers: updatedClickers };
       }
