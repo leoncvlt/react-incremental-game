@@ -93,7 +93,7 @@ export const storeReducer = (store, action) => {
         const updatedResources = cloneDeep(store.resources);
         if (op === OPS.ADD) {
           updatedResources[id].amount += amount * delta;
-          updatedResources[id].earned += amount * delta;
+          updatedResources[id].total += amount * delta;
         }
         return { ...store, resources: updatedResources };
       } else if (id in store.buildings) {
@@ -117,7 +117,7 @@ export const storeReducer = (store, action) => {
             store.resources[id].amount;
           if (op === OPS.ADD) {
             updatedStore.resources[id].amount += amount;
-            updatedStore.resources[id].earned += amount;
+            updatedStore.resources[id].total += amount;
           }
         }
       });

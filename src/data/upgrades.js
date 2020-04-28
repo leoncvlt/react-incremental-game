@@ -45,7 +45,17 @@ export const UPGRADES = {
     desc:
       "Your bunnies can drink their fill!\nEffect: rabbit cage production x2\nrabbit hutch production x2\nrabbit coop production x2",
     cost: [{ id: "bunnies", amount: 1000 }],
-    effects: [{ id: "cage", op: OPS.MULT, amount: 2 }],
-    requirements: [{ id: "cage", amount: 10 }]
+    effects: [
+      { id: "cage", op: OPS.MULT, amount: 2 },
+      { id: "hutch", op: OPS.MULT, amount: 2 },
+      { id: "coop", op: OPS.MULT, amount: 2 }
+    ],
+    requirements: [
+      [
+        { id: "cage", amount: 10 },
+        { id: "hutch", amount: 10 },
+        { id: "coop", amount: 10 }
+      ]
+    ]
   }
 };

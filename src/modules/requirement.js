@@ -1,24 +1,30 @@
 import { REQ } from "../constants/constants";
 
 export const checkRequirement = (store, req) => {
-  if (req.id in store.resources) {
-    const target = store.resources[req.id];
-    switch (req.case) {
-      case REQ.AMOUNT:
-        return target.amount >= req.amount;
-      case REQ.TOTAL:
-        return target.earned >= req.amount;
-      default:
-        return false;
+  if (Array.isArray(req)) {
+    let result = false;
+    req.forEach(r => (result = result || checkRequirement(store, r)));
+    return result;
+  } else if (typeof req === "object" && req != null) {
+    if (req.id in store.resources) {
+      const target = store.resources[req.id];
+      switch (req.case) {
+        case REQ.AMOUNT:
+          return target.amount >= req.amount;
+        case REQ.TOTAL:
+          return target.total >= req.amount;
+        default:
+          return false;
+      }
     }
-  }
-  if (req.id in store.buildings) {
-    const target = store.buildings[req.id];
-    return target >= req.amount;
-  }
-  if (req.id in store.clickers) {
-    const id = store.clickers[req.id];
-    return id[req.target] >= req.amount;
+    if (req.id in store.buildings) {
+      const target = store.buildings[req.id];
+      return target.amount >= req.amount;
+    }
+    if (req.id in store.clickers) {
+      const id = store.clickers[req.id];
+      return id[req.target] >= req.amount;
+    }
   }
   return false;
 };
