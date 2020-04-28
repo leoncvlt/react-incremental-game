@@ -97,13 +97,13 @@ export const doTick = ({ store, dispatch }, delta) => {
   // also store the buildingId it came from so we can selectively apply upgrades
   Object.keys(store.buildings).forEach(buildingId => {
     const storedBuilding = store.buildings[buildingId];
-    if (storedBuilding > 0) {
+    if (storedBuilding.amount > 0) {
       const building = upgradedBuildings[buildingId];
       pendingEffects.push(
         ...building.onTick.map(effect => ({
           ...effect,
           buildingId: buildingId,
-          amount: effect.amount * delta * storedBuilding
+          amount: effect.amount * delta * storedBuilding.amount
         }))
       );
     }

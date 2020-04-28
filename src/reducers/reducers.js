@@ -7,6 +7,7 @@ import { ACHIEVEMENTS } from "../data/achievements";
 
 import cloneDeep from "lodash.clonedeep";
 import { OPS } from "../constants/constants";
+import { schema } from "../store/schema";
 
 const expendResources = (resourceStore, expenses) => {
   const updatedResources = cloneDeep(resourceStore);
@@ -14,12 +15,6 @@ const expendResources = (resourceStore, expenses) => {
     updatedResources[expense.id].amount -= expense.amount;
   });
   return updatedResources;
-};
-
-const increaseObject = (objectStore, objectId, amount = 1) => {
-  const updatedObjectStore = cloneDeep(objectStore);
-  updatedObjectStore[objectId] = updatedObjectStore[objectId] + amount;
-  return updatedObjectStore;
 };
 
 export const storeReducer = (store, action) => {
@@ -30,7 +25,7 @@ export const storeReducer = (store, action) => {
 
       // get the amount owned if the object is a building to calculate
       // the costs, else use normal cost for upgrades
-      let amountOwned = id in BUILDINGS ? store.buildings[id] : 1;
+      let amountOwned = id in BUILDINGS ? store.buildings[id].amount : 1;
       const [canBuy, costs] = canAfford(id, amountOwned, store.resources);
 
       if (canBuy) {
@@ -40,14 +35,16 @@ export const storeReducer = (store, action) => {
 
         // increase the number of owned objects
         if (id in BUILDINGS) {
-          const updatedBuildings = increaseObject(store.buildings, id, 1);
+          const updatedBuildings = cloneDeep(store.buildings);
+          updatedBuildings[id].amount += 1;
           return {
             ...store,
             resources: updatedResources,
             buildings: updatedBuildings
           };
         } else if (id in UPGRADES) {
-          const updatedUpgrades = increaseObject(store.upgrades, id, 1);
+          const updatedUpgrades = cloneDeep(store.upgrades);
+          updatedUpgrades[id] = true;
           return {
             ...store,
             resources: updatedResources,
@@ -64,12 +61,18 @@ export const storeReducer = (store, action) => {
       if (id in BUILDINGS) {
         return {
           ...store,
-          buildings: { ...store.buildings, [id]: 0 }
+          buildings: {
+            ...store.buildings,
+            [id]: Object.assign({}, schema.building)
+          }
         };
       } else if (id in UPGRADES) {
         return {
           ...store,
-          upgrades: { ...store.upgrades, [id]: 0 }
+          upgrades: {
+            ...store.upgrades,
+            [id]: schema.upgrade
+          }
         };
       } else if (id in ACHIEVEMENTS) {
         return {

@@ -16,5 +16,10 @@ export const schema = {
   resource: {
     amount: 0,
     earned: 0
-  }
+  },
+  building: {
+    amount: 0,
+    total: 0
+  },
+  upgrade: false
 };

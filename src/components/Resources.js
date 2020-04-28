@@ -21,7 +21,7 @@ export const Resources = () => {
           >
             {resourceData.icon} {Math.ceil(resource.amount)}
             <span style={{ fontSize: "small" }}>
-              ({rate > 0 && rate.toFixed(2)}
+              ({rate > 0 ? rate.toFixed(1) : "0.0"}
               /s)
             </span>
           </p>

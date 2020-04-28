@@ -30,18 +30,18 @@ export const getInitialStore = () => {
 
     Object.keys(BUILDINGS).forEach(buildingId => {
       if (BUILDINGS[buildingId].available) {
-        store.buildings[buildingId] = 0;
+        store.buildings[buildingId] = Object.assign({}, schema.building);
       }
     });
 
     Object.keys(UPGRADES).forEach(upgradeId => {
       if (UPGRADES[upgradeId].available) {
-        store.upgrades[upgradeId] = 0;
+        store.upgrades[upgradeId] = schema.upgrade;
       }
     });
 
     store.resources.bunnies.amount = store.resources.bunnies.earned = 3000;
-    store.buildings.cage = 10;
+    // store.buildings.cage.amount = 10;
 
     return store;
   }

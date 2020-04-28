@@ -6,7 +6,7 @@ import { BuyButton } from "./BuyButton";
 
 const BuildingEntry = ({ buildingId, buildings, resources }) => {
   const buildingData = BUILDINGS[buildingId];
-  const amountOwned = buildings[buildingId];
+  const amountOwned = buildings[buildingId].amount;
   return (
     <div title={buildingData.desc}>
       <span style={{ fontFamily: "monospace" }}>{amountOwned} x </span>
