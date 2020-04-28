@@ -40,7 +40,7 @@ export const getInitialStore = () => {
       }
     });
 
-    store.resources.bunnies.amount = store.resources.bunnies.earned = 3000;
+    store.resources.bunnies.amount = store.resources.bunnies.total = 3000;
     // store.buildings.cage.amount = 10;
 
     return store;
