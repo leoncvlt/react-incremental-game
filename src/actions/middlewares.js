@@ -8,6 +8,7 @@ import { checkRequirement } from "../modules/requirement";
 import cloneDeep from "lodash.clonedeep";
 import { ACHIEVEMENTS } from "../data/achievements";
 import { OPS, TGT } from "../constants/constants";
+import { RESOURCES } from "../data/resources";
 
 /* 
 Middlewares are functions that can run mutations and / or
@@ -15,13 +16,13 @@ add side effects to arguments before passing them to the
 appropriate dispatch
 */
 
-const compoundEffect = (source, destination) => {
-  switch (source.op) {
+const compoundEffect = (sourceEffect, destinationEffect) => {
+  switch (sourceEffect.op) {
     case OPS.ADD:
-      destination.forEach(effect => (effect.amount += source.amount));
+      destinationEffect.amount += sourceEffect.amount;
       break;
     case OPS.MULT:
-      destination.forEach(effect => (effect.amount *= source.amount));
+      destinationEffect.amount *= sourceEffect.amount;
       break;
     default:
       break;
@@ -44,7 +45,7 @@ export const doClick = ({ store, dispatch }, clickerId) => {
     if (store.upgrades[upgradeId] > 0) {
       UPGRADES[upgradeId].effects.forEach(effect => {
         if (effect.id === clickerId) {
-          compoundEffect(effect, upgradedClicker.onClick);
+          upgradedClicker.onClick.forEach(e => compoundEffect(effect, e));
         }
       });
     }
@@ -80,26 +81,31 @@ const checkIfObjectUnlocked = ({ store, dispatch }, data, objectStore) => {
 };
 
 export const doTick = ({ store, dispatch }, delta) => {
+  // round delta to one decimal digit
+  delta = Math.round(delta * 10) / 10;
+
   // clone the buildings schema, keep only the 'onTick' property
   // so we can mutate it if necessary
   // TODO keep only useful properties
   let upgradedBuildings = Object.assign({}, BUILDINGS);
 
-  // prepare an object to store the original effects in
-  // the effects will be stored in an array mapped to the building
-  // they belonged to: e.g. {buildingId : [{effect1}, {effect2}, ...]}
-  const pendingEffects = {};
+  // prepare an object to store all onTick effect in
+  const pendingEffects = [];
 
   // go through each building and store its onTick effects,
   // taking in consideration the amount of buildings and the delta time
+  // also store the buildingId it came from so we can selectively apply upgrades
   Object.keys(store.buildings).forEach(buildingId => {
     const storedBuilding = store.buildings[buildingId];
     if (storedBuilding > 0) {
       const building = upgradedBuildings[buildingId];
-      pendingEffects[buildingId] = building.onTick.map(effect => ({
-        ...effect,
-        amount: effect.amount * delta * storedBuilding
-      }));
+      pendingEffects.push(
+        ...building.onTick.map(effect => ({
+          ...effect,
+          buildingId: buildingId,
+          amount: effect.amount * delta * storedBuilding
+        }))
+      );
     }
   });
 
@@ -107,17 +113,35 @@ export const doTick = ({ store, dispatch }, delta) => {
   Object.keys(store.upgrades).forEach(upgradeId => {
     if (store.upgrades[upgradeId] > 0) {
       UPGRADES[upgradeId].effects.forEach(effect => {
-        if (effect.id in pendingEffects) {
-          compoundEffect(effect, pendingEffects[effect.id]);
+        if (effect.id in store.buildings) {
+          // building effect
+          pendingEffects
+            .filter(e => e.buildingId === effect.id)
+            .forEach(e => compoundEffect(effect, e));
+        } else if (effect.id in store.resources) {
+          // resource effect
+          pendingEffects
+            .filter(e => e.id === effect.id)
+            .forEach(e => compoundEffect(effect, e));
         }
       });
     }
   });
 
+  // reduce all pending effects to a single effect per target
+  const resourcesEffects = pendingEffects.reduce((resourcesEffects, effect) => {
+    const resourceEffect = resourcesEffects.find(e => e.id === effect.id);
+    if (!resourceEffect) {
+      resourcesEffects.push(effect);
+    } else {
+      compoundEffect(effect, resourceEffect);
+    }
+    return resourcesEffects;
+  }, []);
+
   // finally, go through each pending effects list and dispatch them
-  Object.values(pendingEffects).forEach(pendingEffect =>
-    pendingEffect.forEach(effect => dispatch(resolveEffect(effect)))
-  );
+  dispatch({ type: "tick", effects: resourcesEffects });
+  // resourcesEffects.forEach(effect => dispatch(resolveEffect(effect)));
 
   // check if any building, upgrade or achievement has been unlocked
   checkIfObjectUnlocked({ store, dispatch }, BUILDINGS, store.buildings);

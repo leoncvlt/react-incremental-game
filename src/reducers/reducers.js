@@ -79,6 +79,7 @@ export const storeReducer = (store, action) => {
       }
       return store;
     }
+
     case actions.RESOLVE_EFFECT: {
       // takes an effect, applies it to the store
       const { id, op, amount, target } = action;
@@ -102,6 +103,22 @@ export const storeReducer = (store, action) => {
         return { ...store, clickers: updatedClickers };
       }
       return store;
+    }
+
+    case "tick": {
+      const updatedStore = cloneDeep(store);
+      action.effects.forEach(effect => {
+        const { id, op, amount } = effect;
+        if (id in store.resources) {
+          updatedStore.resources[id]._prevTickAmount =
+            store.resources[id].amount;
+          if (op === OPS.ADD) {
+            updatedStore.resources[id].amount += amount;
+            updatedStore.resources[id].earned += amount;
+          }
+        }
+      });
+      return updatedStore;
     }
 
     default:
