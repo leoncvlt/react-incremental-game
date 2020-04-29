@@ -2,13 +2,14 @@ import { CLICKERS } from "../data/clickers";
 import { BUILDINGS } from "../data/buildings";
 import { UPGRADES } from "../data/upgrades";
 
-import { resolveEffect, unlockObject } from "./actions";
+import { resolveEffect, unlockObject, toggleShiny } from "./actions";
 import { checkRequirement } from "../modules/requirement";
 
 import cloneDeep from "lodash.clonedeep";
 import { ACHIEVEMENTS } from "../data/achievements";
 import { OPS, TGT } from "../constants/constants";
 import { RESOURCES } from "../data/resources";
+import { SHINIES } from "../data/shinies";
 
 /* 
 Middlewares are functions that can run mutations and / or
@@ -54,6 +55,15 @@ export const doClick = ({ store, dispatch }, clickerId) => {
   upgradedClicker.onClick.forEach(effect => {
     dispatch(resolveEffect(effect));
   });
+};
+
+export const doShinyClick = ({ store, dispatch }, shinyId) => {
+  const shinyModel = SHINIES[shinyId];
+
+  shinyModel.onClick.forEach(effect => dispatch(resolveEffect(effect)));
+  //calculate new shiny time, and dispatch spawnshiny with settimeout
+  dispatch(toggleShiny(shinyId, false));
+  setTimeout(() => dispatch(toggleShiny(shinyId, true)), 3000);
 };
 
 const checkIfObjectUnlocked = ({ store, dispatch }, data, objectStore) => {

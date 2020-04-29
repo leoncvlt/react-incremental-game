@@ -7,6 +7,7 @@ import { Clicker } from "./Clicker";
 import { Achievements } from "./Achievements";
 
 import "../styles.css";
+import { Shinies } from "./Shinies";
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
             <Achievements />
           </div>
         </div>
+        <Shinies />
       </div>
     </>
   );

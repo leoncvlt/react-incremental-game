@@ -4,6 +4,7 @@ export const schema = {
       elapsedTime: 0
     },
     clickers: {},
+    shinies: {},
     resources: {},
     buildings: {},
     upgrades: {},
@@ -16,6 +17,10 @@ export const schema = {
   resource: {
     amount: 0,
     total: 0
+  },
+  shiny: {
+    clicks: 0,
+    visible: false
   },
   building: {
     amount: 0,

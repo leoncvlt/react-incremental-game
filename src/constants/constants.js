@@ -1,7 +1,7 @@
 export const REQ = {
   AMOUNT: "amount",
   TOTAL: "total",
-  TICK: "tick",
+  RATE: "rate",
   HAVE: "have"
 };
 
@@ -10,12 +10,6 @@ export const OPS = {
   SUB: "subtract",
   MULT: "multiply",
   DIV: "divide"
-};
-
-export const TGT = {
-  AMOUNT: "amount",
-  RATE: "rate",
-  CLICKS: "clicks"
 };
 
 export const CASE = {

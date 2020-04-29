@@ -109,6 +109,7 @@ export const storeReducer = (store, action) => {
     }
 
     case "tick": {
+      //TODO: move this to a middleware
       const updatedStore = cloneDeep(store);
       action.effects.forEach(effect => {
         const { id, op, amount } = effect;
@@ -122,6 +123,12 @@ export const storeReducer = (store, action) => {
         }
       });
       return updatedStore;
+    }
+
+    case actions.TOGGLE_SHINY: {
+      const updatedShinies = cloneDeep(store.shinies);
+      store.shinies[action.shinyId].visible = action.visible;
+      return { ...store, shinies: updatedShinies };
     }
 
     default:

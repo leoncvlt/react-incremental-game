@@ -9,6 +9,7 @@ import { RESOURCES } from "../data/resources";
 import { UPGRADES } from "../data/upgrades";
 import { CLICKERS } from "../data/clickers";
 import { schema } from "./schema";
+import { SHINIES } from "../data/shinies";
 
 const STORE_KEY = "reactquest_store";
 
@@ -22,6 +23,10 @@ export const getInitialStore = () => {
 
     Object.keys(CLICKERS).forEach(clickerId => {
       store.clickers[clickerId] = Object.assign({}, schema.clicker);
+    });
+
+    Object.keys(SHINIES).forEach(shinyId => {
+      store.shinies[shinyId] = Object.assign({}, schema.shiny);
     });
 
     Object.keys(RESOURCES).forEach(resId => {

@@ -57,5 +57,16 @@ export const UPGRADES = {
         { id: "coop", amount: 10 }
       ]
     ]
+  },
+
+  // golden carrots upgrades
+  goldenTouch: {
+    name: "Golden Touch",
+    icon: "👆🏼",
+    desc:
+      "The delicate art of finding vegetables made of precious metals.\n1% chance of gaining 1 golden carrot per bunny click",
+    cost: [{ id: "carrots", amount: 1 }],
+    effects: [],
+    requirements: [{ id: "carrots", case: REQ.TOTAL, amount: 1 }]
   }
 };

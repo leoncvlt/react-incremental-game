@@ -43,5 +43,14 @@ export const BUILDINGS = {
     cost: [{ id: "bunnies", amount: 20000 }],
     onTick: [{ id: "bunnies", op: OPS.ADD, amount: 90 }],
     requirements: [{ id: "bunnies", case: REQ.TOTAL, amount: 20000 }]
+  },
+  village: {
+    name: "Rabbit village",
+    icon: "🏞️",
+    desc:
+      "Your bunnies are building their own villages now!.\nEffect: Produces 300 rabbits per second.",
+    cost: [{ id: "bunnies", amount: 200000 }, { id: "carrots", amount: 1 }],
+    onTick: [{ id: "bunnies", op: OPS.ADD, amount: 300 }],
+    requirements: [{ id: "bunnies", case: REQ.TOTAL, amount: 200000 }]
   }
 };

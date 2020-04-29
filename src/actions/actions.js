@@ -2,7 +2,8 @@ export const actions = {
   RESOLVE_EFFECT: "resolveEffect",
   UNLOCK_OBJECT: "unlockObjecy",
   EARN_ACHIEVEMENT: "earnAchievement",
-  PURCHASE_OBJECT: "purchaseObject"
+  PURCHASE_OBJECT: "purchaseObject",
+  TOGGLE_SHINY: "toggleShiny"
 };
 
 export const purchaseObject = id => ({
@@ -21,4 +22,9 @@ export const unlockObject = id => ({
 export const earnAchievement = id => ({
   type: actions.EARN_ACHIEVEMENT,
   id
+});
+export const toggleShiny = (shinyId, visible) => ({
+  type: actions.TOGGLE_SHINY,
+  shinyId,
+  visible
 });
