@@ -9,13 +9,13 @@ import cloneDeep from "lodash.clonedeep";
 import { OPS } from "../constants/constants";
 import { schema } from "../store/schema";
 
-const expendResources = (resourceStore, expenses) => {
-  const updatedResources = cloneDeep(resourceStore);
-  expenses.forEach(expense => {
-    updatedResources[expense.id].amount -= expense.amount;
-  });
-  return updatedResources;
-};
+// const expendResources = (resourceStore, expenses) => {
+//   const updatedResources = cloneDeep(resourceStore);
+//   expenses.forEach(expense => {
+//     updatedResources[expense.id].amount -= expense.amount;
+//   });
+//   return updatedResources;
+// };
 
 export const storeReducer = (store, action) => {
   switch (action.type) {
@@ -31,7 +31,10 @@ export const storeReducer = (store, action) => {
       if (canBuy) {
         // if the played can afford the object,
         // subratct the resources necessary for purchase
-        const updatedResources = expendResources(store.resources, costs);
+        const expendedResources = cloneDeep(store.resources);
+        costs.forEach(cost => {
+          expendedResources[cost.id].amount -= cost.amount;
+        });
 
         // increase the number of owned objects
         if (id in BUILDINGS) {
@@ -39,7 +42,7 @@ export const storeReducer = (store, action) => {
           updatedBuildings[id].amount += 1;
           return {
             ...store,
-            resources: updatedResources,
+            resources: expendedResources,
             buildings: updatedBuildings
           };
         } else if (id in UPGRADES) {
@@ -47,7 +50,7 @@ export const storeReducer = (store, action) => {
           updatedUpgrades[id] = true;
           return {
             ...store,
-            resources: updatedResources,
+            resources: expendedResources,
             upgrades: updatedUpgrades
           };
         }
@@ -83,9 +86,9 @@ export const storeReducer = (store, action) => {
       return store;
     }
 
-    case actions.RESOLVE_EFFECT: {
+    case actions.PROCESS_EFFECT: {
       // takes an effect, applies it to the store
-      const { id, op, amount, target } = action;
+      const { id, op, amount, rate } = action;
       const { delta } = action;
 
       if (id in store.resources) {
@@ -95,6 +98,7 @@ export const storeReducer = (store, action) => {
           updatedResources[id].amount += amount * delta;
           updatedResources[id].total += amount * delta;
         }
+        if (rate) updatedResources[id].rate = amount * delta;
         return { ...store, resources: updatedResources };
       } else if (id in store.buildings) {
         //TODO
@@ -106,23 +110,6 @@ export const storeReducer = (store, action) => {
         return { ...store, clickers: updatedClickers };
       }
       return store;
-    }
-
-    case "tick": {
-      //TODO: move this to a middleware
-      const updatedStore = cloneDeep(store);
-      action.effects.forEach(effect => {
-        const { id, op, amount } = effect;
-        if (id in store.resources) {
-          updatedStore.resources[id]._prevTickAmount =
-            store.resources[id].amount;
-          if (op === OPS.ADD) {
-            updatedStore.resources[id].amount += amount;
-            updatedStore.resources[id].total += amount;
-          }
-        }
-      });
-      return updatedStore;
     }
 
     case actions.TOGGLE_SHINY: {

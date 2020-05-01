@@ -2,13 +2,12 @@ import { CLICKERS } from "../data/clickers";
 import { BUILDINGS } from "../data/buildings";
 import { UPGRADES } from "../data/upgrades";
 
-import { resolveEffect, unlockObject, toggleShiny } from "./actions";
+import { processEffect, unlockObject, toggleShiny } from "./actions";
 import { checkRequirement } from "../modules/requirement";
 
 import cloneDeep from "lodash.clonedeep";
 import { ACHIEVEMENTS } from "../data/achievements";
-import { OPS, TGT } from "../constants/constants";
-import { RESOURCES } from "../data/resources";
+import { OPS } from "../constants/constants";
 import { SHINIES } from "../data/shinies";
 
 /* 
@@ -34,7 +33,7 @@ export const doClick = ({ store, dispatch }, clickerId) => {
   let upgradedClicker = cloneDeep(CLICKERS[clickerId]);
 
   dispatch(
-    resolveEffect({
+    processEffect({
       id: clickerId,
       op: OPS.ADD,
       amount: 1
@@ -53,14 +52,14 @@ export const doClick = ({ store, dispatch }, clickerId) => {
   });
 
   upgradedClicker.onClick.forEach(effect => {
-    dispatch(resolveEffect(effect));
+    dispatch(processEffect(effect));
   });
 };
 
 export const doShinyClick = ({ store, dispatch }, shinyId) => {
   const shinyModel = SHINIES[shinyId];
 
-  shinyModel.onClick.forEach(effect => dispatch(resolveEffect(effect)));
+  shinyModel.onClick.forEach(effect => dispatch(processEffect(effect)));
   //calculate new shiny time, and dispatch spawnshiny with settimeout
   dispatch(toggleShiny(shinyId, false));
   setTimeout(() => dispatch(toggleShiny(shinyId, true)), 3000);
@@ -139,19 +138,25 @@ export const doTick = ({ store, dispatch }, delta) => {
   });
 
   // reduce all pending effects to a single effect per target
-  const resourcesEffects = pendingEffects.reduce((resourcesEffects, effect) => {
-    const resourceEffect = resourcesEffects.find(e => e.id === effect.id);
-    if (!resourceEffect) {
-      resourcesEffects.push(effect);
+  const uniqueEffects = pendingEffects.reduce((uniqueEffects, effect) => {
+    const currentEffect = uniqueEffects.find(e => e.id === effect.id);
+    if (!currentEffect) {
+      uniqueEffects.push(effect);
     } else {
-      compoundEffect(effect, resourceEffect);
+      compoundEffect(effect, currentEffect);
     }
-    return resourcesEffects;
+    return uniqueEffects;
   }, []);
 
-  // finally, go through each pending effects list and dispatch them
-  dispatch({ type: "tick", effects: resourcesEffects });
-  // resourcesEffects.forEach(effect => dispatch(resolveEffect(effect)));
+  // finally, go through each unique effect and dispatch it
+  uniqueEffects.forEach(effect => {
+    // if the effect is targeting a resource, add a "rate" flag to it so
+    // that the reducer sets the current prodution rate for that resource
+    if (effect.id in store.resources) {
+      effect = { ...effect, rate: true };
+    }
+    dispatch(processEffect(effect));
+  });
 
   // check if any building, upgrade or achievement has been unlocked
   checkIfObjectUnlocked({ store, dispatch }, BUILDINGS, store.buildings);

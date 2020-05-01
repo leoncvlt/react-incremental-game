@@ -1,5 +1,5 @@
 export const actions = {
-  RESOLVE_EFFECT: "resolveEffect",
+  PROCESS_EFFECT: "processEffect",
   UNLOCK_OBJECT: "unlockObjecy",
   EARN_ACHIEVEMENT: "earnAchievement",
   PURCHASE_OBJECT: "purchaseObject",
@@ -10,8 +10,8 @@ export const purchaseObject = id => ({
   type: actions.PURCHASE_OBJECT,
   id
 });
-export const resolveEffect = (effect, delta = 1) => ({
-  type: actions.RESOLVE_EFFECT,
+export const processEffect = (effect, delta = 1) => ({
+  type: actions.PROCESS_EFFECT,
   ...effect,
   delta
 });
