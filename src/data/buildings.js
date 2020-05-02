@@ -54,6 +54,24 @@ export const BUILDINGS = {
       { id: "goldenCarrots", amount: 1 }
     ],
     onTick: [{ id: "bunnies", op: OPS.ADD, amount: 300 }],
-    requirements: [{ id: "bunnies", case: REQ.TOTAL, amount: 200000 }]
+    requirements: [
+      { id: "bunnies", case: REQ.TOTAL, amount: 200000 },
+      { id: "independenceDay", case: REQ.HAVE }
+    ]
+  },
+  city: {
+    name: "Rabbit city",
+    icon: "🏙️",
+    desc:
+      "A bustling little city, populated with busy rabbits.\nEffect: Produces 1000 rabbits per second.",
+    cost: [
+      { id: "bunnies", amount: 3000000 },
+      { id: "goldenCarrots", amount: 4 }
+    ],
+    onTick: [{ id: "bunnies", op: OPS.ADD, amount: 1000 }],
+    requirements: [
+      { id: "bunnies", case: REQ.TOTAL, amount: 3000000 },
+      { id: "independenceDay", case: REQ.HAVE }
+    ]
   }
 };
