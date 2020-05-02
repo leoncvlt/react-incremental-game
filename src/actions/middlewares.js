@@ -3,7 +3,7 @@ import { BUILDINGS } from "../data/buildings";
 import { UPGRADES } from "../data/upgrades";
 
 import { processEffect, unlockObject, toggleShiny } from "./actions";
-import { checkRequirement } from "../modules/requirement";
+import { checkRequirements } from "../modules/requirement";
 
 import cloneDeep from "lodash.clonedeep";
 import { ACHIEVEMENTS } from "../data/achievements";
@@ -78,9 +78,7 @@ const checkIfObjectUnlocked = ({ store, dispatch }, data, objectStore) => {
       // if not, go through all the object's requirements
       // and check whether they are satisfied or not
       if (objectData.requirements) {
-        objectData.requirements.forEach(req => {
-          unlocked = checkRequirement(store, req);
-        });
+        unlocked = checkRequirements(store, objectData.requirements);
       }
       if (unlocked) {
         dispatch(unlockObject(objectId));

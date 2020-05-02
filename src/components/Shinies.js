@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useStore, useDispatch } from "../context/GameContext";
 import { toggleShiny } from "../actions/actions";
 import { doShinyClick } from "../actions/middlewares";
+import { SHINIES } from "../data/shinies";
 
 const ShinyButton = ({ shinyId, store }) => {
   const dispatch = useDispatch();
@@ -9,17 +10,27 @@ const ShinyButton = ({ shinyId, store }) => {
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const speed = 0.05;
   const seed = Math.random();
+  const shinyModel = SHINIES[shinyId];
 
   useEffect(() => {
-    initialize();
-    setTimeout(() => {
-      dispatch(toggleShiny(shinyId, true));
-    }, 3000);
+    console.log("hello");
+    if (!shiny.visible) {
+      const frequency =
+        shinyModel.frequency[0] +
+        Math.random() * (shinyModel.frequency[1] - shinyModel.frequency[0]);
+      console.log(`${shinyId}: next spawn will be in ${frequency} seconds`);
+      setTimeout(() => {
+        console.log("bang!");
+        dispatch(toggleShiny(shinyId, true));
+      }, frequency * 1000);
+    } else {
+      initialize();
+    }
     tick();
     return () => {
       cancelAnimationFrame(tick);
     };
-  }, [shiny.visible]);
+  }, [shiny.visible]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const tick = () => {
     setPos({

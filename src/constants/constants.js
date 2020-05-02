@@ -2,7 +2,8 @@ export const REQ = {
   AMOUNT: "amount",
   TOTAL: "total",
   RATE: "rate",
-  HAVE: "have"
+  HAVE: "have",
+  CHANCE: "chance"
 };
 
 export const OPS = {

@@ -8,6 +8,7 @@ import { ACHIEVEMENTS } from "../data/achievements";
 import cloneDeep from "lodash.clonedeep";
 import { OPS } from "../constants/constants";
 import { schema } from "../store/schema";
+import { checkRequirements } from "../modules/requirement";
 
 // const expendResources = (resourceStore, expenses) => {
 //   const updatedResources = cloneDeep(resourceStore);
@@ -88,8 +89,14 @@ export const storeReducer = (store, action) => {
 
     case actions.PROCESS_EFFECT: {
       // takes an effect, applies it to the store
-      const { id, op, amount, rate } = action;
+      const { id, op, amount, req, rate } = action;
       const { delta } = action;
+
+      if (req) {
+        if (!checkRequirements(store, req)) {
+          return store;
+        }
+      }
 
       if (id in store.resources) {
         // if the resolved effect is targeting a resource, increase its amount

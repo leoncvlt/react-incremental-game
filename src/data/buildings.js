@@ -49,7 +49,10 @@ export const BUILDINGS = {
     icon: "🏞️",
     desc:
       "Your bunnies are building their own villages now!.\nEffect: Produces 300 rabbits per second.",
-    cost: [{ id: "bunnies", amount: 200000 }, { id: "carrots", amount: 1 }],
+    cost: [
+      { id: "bunnies", amount: 200000 },
+      { id: "goldenCarrots", amount: 1 }
+    ],
     onTick: [{ id: "bunnies", op: OPS.ADD, amount: 300 }],
     requirements: [{ id: "bunnies", case: REQ.TOTAL, amount: 200000 }]
   }

@@ -1,5 +1,12 @@
 import { REQ } from "../constants/constants";
 
+export const checkRequirements = (store, requirements) => {
+  for (const requirement of requirements) {
+    if (!checkRequirement(store, requirement)) return false;
+  }
+  return true;
+};
+
 export const checkRequirement = (store, req) => {
   // if the requirement is an array, evaluate
   // all the requirements in it with an OR boolean operation
@@ -39,6 +46,19 @@ export const checkRequirement = (store, req) => {
     if (req.id in store.clickers) {
       const id = store.clickers[req.id];
       return id[req.target] >= req.amount;
+    }
+    if (req.id in store.upgrades) {
+      const target = store.upgrades[req.id];
+      switch (req.case) {
+        case REQ.HAVE:
+          return target === true;
+        default:
+          return false;
+      }
+    }
+    if (req.case === REQ.CHANCE) {
+      const chance = Math.random();
+      return chance <= parseFloat(req.amount) / 100;
     }
   }
   return false;

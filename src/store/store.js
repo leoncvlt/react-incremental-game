@@ -46,6 +46,7 @@ export const getInitialStore = () => {
     });
 
     store.resources.bunnies.amount = store.resources.bunnies.total = 5000;
+    store.resources.goldenCarrots.amount = store.resources.goldenCarrots.total = 5000;
     //store.buildings.cage.amount = 10;
 
     return store;
