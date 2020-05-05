@@ -115,13 +115,19 @@ export const storeReducer = (store, action) => {
           updatedClickers[id].clicks += amount * delta;
         }
         return { ...store, clickers: updatedClickers };
+      } else if (id in store.shinies) {
+        const updatedShinies = cloneDeep(store.shinies);
+        if (op === OPS.ADD) {
+          updatedShinies[id].clicks += amount * delta;
+        }
+        return { ...store, shinies: updatedShinies };
       }
       return store;
     }
 
     case actions.TOGGLE_SHINY: {
       const updatedShinies = cloneDeep(store.shinies);
-      store.shinies[action.shinyId].visible = action.visible;
+      updatedShinies[action.shinyId].visible = action.visible;
       return { ...store, shinies: updatedShinies };
     }
 

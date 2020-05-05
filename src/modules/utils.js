@@ -34,3 +34,5 @@ export const getCostsLabel = costs => {
     ""
   );
 };
+
+export const randomRange = (a, b) => a + Math.random() * (b - a);

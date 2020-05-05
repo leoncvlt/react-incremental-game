@@ -186,7 +186,9 @@ export const UPGRADES = {
     desc:
       "I'm late! I'm late! For a very important date!\nLucky bunnies appear 30% more often",
     cost: [{ id: "goldenCarrots", amount: 5 }],
-    effects: [],
+    effects: [
+      { id: "luckyBunny", op: OPS.MULT, amount: 0.7, target: "frequency" }
+    ],
     requirements: [{ id: "goldenCarrots", case: REQ.TOTAL, amount: 1 }]
   },
   independenceDay: {

@@ -9,6 +9,8 @@ import cloneDeep from "lodash.clonedeep";
 import { ACHIEVEMENTS } from "../data/achievements";
 import { OPS } from "../constants/constants";
 import { SHINIES } from "../data/shinies";
+import { randomRange } from "../modules/utils";
+import { EFFECTS } from "../data/effects";
 
 /* 
 Middlewares are functions that can run mutations and / or
@@ -16,13 +18,17 @@ add side effects to arguments before passing them to the
 appropriate dispatch
 */
 
+const resolveEffect = (effect, store) =>
+  typeof effect === "string" ? EFFECTS[effect](store) : effect;
+
 const compoundEffect = (sourceEffect, destinationEffect) => {
+  const target = sourceEffect.target || "amount";
   switch (sourceEffect.op) {
     case OPS.ADD:
-      destinationEffect.amount += sourceEffect.amount;
+      destinationEffect[target] += sourceEffect.amount;
       break;
     case OPS.MULT:
-      destinationEffect.amount *= sourceEffect.amount;
+      destinationEffect[target] *= sourceEffect.amount;
       break;
     default:
       break;
@@ -30,8 +36,15 @@ const compoundEffect = (sourceEffect, destinationEffect) => {
 };
 
 export const doClick = ({ store, dispatch }, clickerId) => {
-  let upgradedClicker = cloneDeep(CLICKERS[clickerId]);
+  const clickerModel = CLICKERS[clickerId];
+  let clickerEffects = [];
 
+  // resolve all clicker's onClick effects if necessary
+  clickerEffects.push(
+    ...clickerModel.onClick.map(e => resolveEffect(e, store))
+  );
+
+  // dispatch an effect to increase the clickers's clicks count by 1
   dispatch(
     processEffect({
       id: clickerId,
@@ -43,26 +56,52 @@ export const doClick = ({ store, dispatch }, clickerId) => {
   // augment the clicker's effects by any upgrade needed
   Object.keys(store.upgrades).forEach(upgradeId => {
     if (store.upgrades[upgradeId] > 0) {
-      UPGRADES[upgradeId].effects.forEach(effect => {
-        if (effect.id === clickerId) {
-          upgradedClicker.onClick.forEach(e => compoundEffect(effect, e));
+      UPGRADES[upgradeId].effects.forEach(upgradeEffect => {
+        if (upgradeEffect.id === clickerId) {
+          clickerEffects.forEach(e => compoundEffect(upgradeEffect, e));
         }
       });
     }
   });
 
-  upgradedClicker.onClick.forEach(effect => {
+  // dispatch all clickers's click effects
+  clickerEffects.forEach(effect => {
     dispatch(processEffect(effect));
   });
 };
 
 export const doShinyClick = ({ store, dispatch }, shinyId) => {
   const shinyModel = SHINIES[shinyId];
+  let shinyEffects = [];
 
-  shinyModel.onClick.forEach(effect => dispatch(processEffect(effect)));
-  //calculate new shiny time, and dispatch spawnshiny with settimeout
+  // resolve all shiny's onClick effects if necessary
+  shinyEffects.push(...shinyModel.onClick.map(e => resolveEffect(e, store)));
+
+  // dispatch an effect to increase the shiny's clicks count by 1
+  dispatch(
+    processEffect({
+      id: shinyId,
+      op: OPS.ADD,
+      amount: 1
+    })
+  );
+
+  // augment the shinie's effects by any upgrade needed
+  Object.keys(store.upgrades).forEach(upgradeId => {
+    if (store.upgrades[upgradeId] > 0) {
+      UPGRADES[upgradeId].effects.forEach(upgradeEffect => {
+        if (upgradeEffect.id === shinyId) {
+          shinyEffects.forEach(e => compoundEffect(upgradeEffect, e));
+        }
+      });
+    }
+  });
+
+  // dispatch all shinie's click effects
+  shinyEffects.forEach(effect => dispatch(processEffect(effect)));
+
+  // dispatch an event to hide the clicked shiny
   dispatch(toggleShiny(shinyId, false));
-  setTimeout(() => dispatch(toggleShiny(shinyId, true)), 3000);
 };
 
 const checkIfObjectUnlocked = ({ store, dispatch }, data, objectStore) => {
@@ -87,6 +126,29 @@ const checkIfObjectUnlocked = ({ store, dispatch }, data, objectStore) => {
   });
 };
 
+export const doSpawnShiny = ({ store, dispatch }, shinyId) => {
+  const shinyModel = SHINIES[shinyId];
+  const spawnEffect = {
+    frequency: randomRange(shinyModel.frequency.min, shinyModel.frequency.max)
+  };
+
+  // check if any upgrade influences shinies' frequency
+  Object.keys(store.upgrades).forEach(upgradeId => {
+    if (store.upgrades[upgradeId] > 0) {
+      UPGRADES[upgradeId].effects.forEach(effect => {
+        if (effect.id in store.shinies && effect.target === "frequency") {
+          compoundEffect(effect, spawnEffect);
+        }
+      });
+    }
+  });
+
+  console.log(`Next ${shinyId} will spawn in ${spawnEffect.frequency} secs.`);
+  setTimeout(() => {
+    dispatch(toggleShiny(shinyId, true));
+  }, spawnEffect.frequency * 1000);
+};
+
 export const doTick = ({ store, dispatch }, delta) => {
   // round delta to one decimal digit
   delta = Math.round(delta * 10) / 10;
@@ -107,11 +169,15 @@ export const doTick = ({ store, dispatch }, delta) => {
     if (storedBuilding.amount > 0) {
       const building = upgradedBuildings[buildingId];
       pendingEffects.push(
-        ...building.onTick.map(effect => ({
-          ...effect,
-          buildingId: buildingId,
-          amount: effect.amount * delta * storedBuilding.amount
-        }))
+        ...building.onTick.map(effect => {
+          // resolve the building's effect if necessary
+          const resolvedEffect = resolveEffect(effect, store);
+          return {
+            ...resolvedEffect,
+            buildingId: buildingId,
+            amount: resolvedEffect.amount * delta * storedBuilding.amount
+          };
+        })
       );
     }
   });

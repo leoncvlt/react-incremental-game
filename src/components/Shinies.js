@@ -1,30 +1,22 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useStore, useDispatch } from "../context/GameContext";
 import { toggleShiny } from "../actions/actions";
-import { doShinyClick } from "../actions/middlewares";
+import { doShinyClick, doSpawnShiny } from "../actions/middlewares";
 import { SHINIES } from "../data/shinies";
+import { randomRange } from "../modules/utils";
 
 const ShinyButton = ({ shinyId, store }) => {
   const dispatch = useDispatch();
   const shiny = store.shinies[shinyId];
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const speed = 0.05;
-  const seed = Math.random();
   const shinyModel = SHINIES[shinyId];
 
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [speed, setSpeed] = useState({ x: 0, y: 0 });
+
   useEffect(() => {
-    console.log("hello");
+    initialize();
     if (!shiny.visible) {
-      const frequency =
-        shinyModel.frequency[0] +
-        Math.random() * (shinyModel.frequency[1] - shinyModel.frequency[0]);
-      console.log(`${shinyId}: next spawn will be in ${frequency} seconds`);
-      setTimeout(() => {
-        console.log("bang!");
-        dispatch(toggleShiny(shinyId, true));
-      }, frequency * 1000);
-    } else {
-      initialize();
+      doSpawnShiny({ store, dispatch }, shinyId);
     }
     tick();
     return () => {
@@ -34,13 +26,17 @@ const ShinyButton = ({ shinyId, store }) => {
 
   const tick = () => {
     setPos({
-      x: (Date.now() * speed) % window.innerWidth,
-      y: (Date.now() * speed * seed) % window.innerHeight
+      x: (Date.now() * speed.x) % window.innerWidth,
+      y: (Date.now() * speed.y) % window.innerHeight
     });
     requestAnimationFrame(tick);
   };
 
   const initialize = () => {
+    setSpeed({
+      x: randomRange(shinyModel.speed.min, shinyModel.speed.max) * 0.01,
+      y: randomRange(shinyModel.speed.min, shinyModel.speed.max) * 0.01
+    });
     setPos({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight
